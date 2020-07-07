@@ -27,13 +27,20 @@ The figure outlines the four key blocks of NeST and the steps performed by each 
 ## Prerequisites
 
 __For OSX Catalina:__
+
+The latest
 - xcode developer tools
     - `xcode-select --install`
 
 - Install [brew](https://brew.sh)
     - If installed already, then `brew update && upgrade`
 
-- Get the latest [Java Dev Tools](https://www.oracle.com/java/technologies/javase-jdk13-downloads.html)
+- Install [git large file storage](https://git-lfs.github.com) & curl
+    - `brew install git-lfs`
+    - `brew install curl` or `brew update curl` if already installed
+
+- Install the latest [java dev tools](https://www.oracle.com/java/technologies/javase-jdk13-downloads.html)
+
 
 <a id="Installation"></a>
 ## Availability of code and installation:
@@ -67,13 +74,15 @@ __For OSX Catalina:__
    conda env create -n nest -f lib/nest_env.yaml
    ```
 
-
    Once the environment is created you will need to refresh your `.bashrc` or `.bash_profile` using the following command
 
    ```
-   #If you have a .bashrc file
+   # If you are on OSX Catalina
+   source ~/.zshrc
+
+   # If you have a .bashrc file
    source ~/.bashrc
-   #If you have a .bash_profile file
+   # If you have a .bash_profile file
    source ~/.bash_profile
    ```
    The `nest` virtual environment  can then be activated using the command.
