@@ -49,7 +49,7 @@ The latest
 
    Clone the master branch of this repository.
    ```
-   git clone https://github.com/shashidhar22/NeST
+   git clone https://github.com/CDCgov/NeST.git
    ```
 
 2. Installation:
