@@ -46,10 +46,8 @@ The latest
 
 - Download latest gcc with conda 
   
-  '''
-  install -c conda-forge/label/cf202003 gcc
+  'install -c conda-forge/label/cf202003 gcc'
 
-  '''
 
 - Run gcc --version and check if it is installed
 
