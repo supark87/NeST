@@ -44,7 +44,8 @@ The latest
 
 - System update to 10.15.7 (19H2)
 
-- Download latest gcc with conda conda 
+- Download latest gcc with conda 
+  
   '''
   install -c conda-forge/label/cf202003 gcc
 
