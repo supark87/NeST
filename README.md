@@ -32,7 +32,10 @@ The latest
 - xcode developer tools
     - `xcode-select --install`
     
-- If xcode is already installed,run "softwareupdate --install --all" (System needed to be updated to the latest version, currently working on 10.15.7)
+- If xcode is already installed,run 
+  `softwareupdate --install --all`
+  
+  (System needed to be updated to the latest version, currently working on 10.15.7)
 
 - Install [brew](https://brew.sh)
     - If installed already, then `brew update && upgrade`
@@ -46,10 +49,9 @@ The latest
 - System update to 10.15.7 (19H2)
 
 - Download latest gcc with conda conda 
-  '''
-  install -c conda-forge/label/cf202003 gcc
 
-  '''
+  `install -c conda-forge/label/cf202003 gcc`
+ 
   
 - Run gcc --version and check if it is installed
 
