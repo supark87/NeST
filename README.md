@@ -3,10 +3,12 @@
 Advancements in next-generation sequencing have led to the development of numerous bioinformatics tools and pipelines. Current tools for variant calling offer high-quality solutions; however, many tools are tailored for model organisms. Here, we present NeST, a consensus-based variant calling tool with a plug-and-play framework for use with any organism with minimal user input. NeST consists of four modules, integrating open-source bioinformatics tools and a custom VCF parser, to generate high-quality consensus variant calls. NeST was validated using targeted-amplicon deep sequencing data from 245 Plasmodium falciparum isolates to identify single-nucleotide polymorphisms conferring drug resistance. NeST offers a light-weight pipeline for variant calling with standardized outputs and minimal computational demands for easy deployment for use with various organisms and applications. The following document outlines details of installation, results from MaRS dataset and usage of individual modules for analysis.
 
 1. [Overview of NeST framework](#Overview)
-2. [Availability of code and installation](#Installation)
-3. [Your first analysis](#First)
-4. [Input standardization](#inputs)
-5. [Output description](#output)
+2. [Prerequisites](#Prerequisites)
+3. [Availability of code and installation](#Installation)
+4. [Your first analysis](#First)
+5. [Input standardization](#inputs)
+6. [Output Description](#outputs)
+7. [NeST on HPC](#hpc)
 
 <a id="Overview"></a>
 ## Overview of the NeST framework:
@@ -21,6 +23,25 @@ NeST is a python based modular framework for consensus based variant calling. Th
 
 The figure outlines the four key blocks of NeST and the steps performed by each step. VarCallEngine and VCFToolkit are spawned in parallel for each sample that is being analyzed in the study. By default, 4 parallel threads are spawned, to account for minimum available computational resource. This can be altered as per availability of resources.
 
+<a id="Prerequisites"></a>
+## Prerequisites
+
+__For OSX Catalina:__
+
+The latest
+- xcode developer tools
+    - `xcode-select --install`
+
+- Install [brew](https://brew.sh)
+    - If installed already, then `brew update && upgrade`
+
+- Install [git large file storage](https://git-lfs.github.com) & curl
+    - `brew install git-lfs`
+    - `brew install curl` or `brew update curl` if already installed
+
+- Install the latest [java dev tools](https://www.oracle.com/java/technologies/javase-jdk13-downloads.html)
+
+
 <a id="Installation"></a>
 ## Availability of code and installation:
 
@@ -28,12 +49,12 @@ The figure outlines the four key blocks of NeST and the steps performed by each 
 
    Clone the master branch of this repository.
    ```
-   git clone https://github.com/shashidhar22/NeST
+   git clone https://github.com/CDCgov/NeST.git
    ```
 
 2. Installation:
 
-   NeST comes with a install script that can be run to setup miniconda and create the virtual environment required to run NeST. To setup up miniconda and the NeST virtual environment, run the following command from the NeST directory. **If you already have Anaconda or Miniconda installed on your system, you can skip the install step and just create a new environment as described in the next codeblock**
+   NeST comes with a install script that can be run to setup miniconda and create the virtual environment required to run NeST. To setup up miniconda and the NeST virtual environment, run the following command from the NeST directory. **If you already have Anaconda or Miniconda installed on your system, you can skip this installation step and just create a new environment as described in Step 3**
 
    ```
    cd  NeST
@@ -45,6 +66,7 @@ The figure outlines the four key blocks of NeST and the steps performed by each 
    ```
    conda --version
    ```
+3. Create NeST virtual environment
 
    To create the NeST environment, run the following command from the NeST directory.
 
@@ -52,13 +74,15 @@ The figure outlines the four key blocks of NeST and the steps performed by each 
    conda env create -n nest -f lib/nest_env.yaml
    ```
 
-
    Once the environment is created you will need to refresh your `.bashrc` or `.bash_profile` using the following command
 
    ```
-   #If you have a .bashrc file
+   # If you are on OSX Catalina
+   source ~/.zshrc
+
+   # If you have a .bashrc file
    source ~/.bashrc
-   #If you have a .bash_profile file
+   # If you have a .bash_profile file
    source ~/.bash_profile
    ```
    The `nest` virtual environment  can then be activated using the command.
@@ -105,7 +129,30 @@ The figure outlines the four key blocks of NeST and the steps performed by each 
 
       *\*Depending on internet speed*
 
-   2. Detecting mutations conferring drug resistance in *M.tuberculosis* clinical samples from Colman et al., 2015:
+   2. Insilico datasets for NeST valiadation:
+
+      To compare the accuracy of the three variant callers included with NeST, we generated 108 insilico datasets from 7 genes assosicated with anti-malarial drug resistance in *P. falciparum*. The detailed sample list and simulated error rates and mutation rates can be found in the ```fq/Insilico/Plasmodium_insilico_study.tsv```. The FASTQ files for this analysis can be generated by following the steps shown here
+
+      ```
+      cd fq/Insilico
+      python3 simulator.py
+      ```
+
+      To run NeST on the dataset use the following command, the outputs will be stored in the `local/Insilico` folder within the NeST folder
+
+      ```
+      python3 nest.py -i fq/Insilico/ -a ref/pfalciparum/adapters.fa -r ref/pfalciparum/mdr.fa -o local/Insilico -b ref/pfalciparum/mdr.bed -m bowtie2 --varofint ref/pfalciparum/Reportable_SNPs.csv
+      ```
+
+   3. Malaria Reasistance Surveillance Project:
+
+      The study introduced a new library preparation method to indetify and track mutations that are associated with anti-malarial drug resistance. The samples were seuqenced using Illumina MiSeq to generate 243 paired-end targeted amplicon deep sequencing datasets. These variant calling was performed on these samples using NeST and the results were compared against the variant calls from Sanger sequencing of the same samples, as well Geneious, a commercial NGS data analysis software. To call variants on these 243 samples using NeST, run the following command
+
+      ```
+      python3 nest.py -i fq/MaRS/Accession_list.txt -a ref/pfalciparum/adapters.fa -r ref/pfalciparum/mdr.fa -o local/MaRS_sanger -b ref/pfalciparum/mdr.bed -m bowtie2 --varofint ref/pfalciparum/Reportable_SNPs.csv
+      ```
+
+   4. Detecting mutations conferring drug resistance in *M.tuberculosis* clinical samples from Colman et al., 2015:
 
       To re-create the analysis from Colman et al., 2015, run the following command from the NeST directory.
 
@@ -115,7 +162,7 @@ The figure outlines the four key blocks of NeST and the steps performed by each 
 
       This will download 57 paired fastq files from the bioproject [PRJNA271805](https://www.ncbi.nlm.nih.gov/bioproject/PRJNA271805), merges the different runs and executes NeST on the clinical samples from the paper. The results are stored under `local/ColmanEtAl` folder within the NeST directory. This analysis takes significantly longer than the MaRS study and requires around 80GB of disk space, due to the large amount of data that is download. Make sure you have a good internet connection and adequate amount of coffee before starting this study.
 
-   3. Executing NeST on a HPC framework:
+   5. Executing NeST on a HPC framework:
 
       An early implementation of HPC enabled NeST is available with the [NeSTv2.1.0 branch](https://github.com/shashidhar22/NeST/tree/v2.1.0#hpc). The script ```nest_submitter.py``` generates and submits a job in a Moab scheduler environment. It is still a work in progress and users need to manipulate the nest_submitter.py to reflect the HPC enivronment specifications. The command listed below will spawn 101 jobs for all the 10105 samples from [(The CRyPTIC Consortium and the 100, 2018)](https://www.nejm.org/doi/full/10.1056/NEJMoa1800474) paper, using 1 node per job, with 15 threads and 16gb of memory per threads. Since this is still a work in progress, please use make necessary changes to the submitter script or create an issue on the GitHub branch with your HPC framework details and we will get back to you with the changes needed to execute NeST on your HPC framework.
 
@@ -136,7 +183,7 @@ The figure outlines the four key blocks of NeST and the steps performed by each 
       This research was supported in part through research cyberinfrastructure resources and services provided by the Partnership for an Advanced Computing Environment (PACE) at the Georgia Institute of Technology, Atlanta, Georgia, USA.
 
 
-   4. Executing your own analysis using NeST:
+   6. Executing your own analysis using NeST:
 
       NeST can be executed on your own dataset using the following command:
 
@@ -199,12 +246,12 @@ NeST is designed to reduce the amount of user intervention with regards to input
 
 
 
-<a id="output"></a>
+<a id="outputs"></a>
 ## Output Description
 
 1. Report files:
 
-   NeST produces table reports that summarize the different types of variants found in the sample. All the tables will be stored under the ```Reports``` folder inside the output directory. The table below describes the different files that are generated by NeST.
+   NeST produces table reports that summarize the different types of variants found in the sample. All the tables will be stored under the output directory. The table below describes the different files that are generated by NeST.
 
    |                   File                    |                                          Description                                                                                                      |
    |:------------------------------------------|:----------------------------------------------------------------------------------------------------------------------------------------------------------|
@@ -220,7 +267,7 @@ NeST is designed to reduce the amount of user intervention with regards to input
 
 2. Figure files:
 
-   NeST produces summarization figures which are stored under ```Figures``` folder inside the output directory. The figures generated are listed below.
+   NeST produces summarization figures which are stored under the output directory. The figures generated are listed below.
 
     * Study Depth:
 
@@ -248,6 +295,16 @@ NeST is designed to reduce the amount of user intervention with regards to input
 
     * Novel non-synonymous exonic SNPs:
 
+
+      ![Novel Exonic Non-Syn SNPs](images/Novel_SNPs_exonic_nonsyn.jpg)
       Bar graph depicting the wild type, major and minor allele frequencies of novel non-synonymous SNPs. Allele frequencies are indicated on the x axis, and the variants of interest are listed along the y-axis (left). The number of samples that had a particular mutation is indicated on the y-axis (right). The color coding indicates the type of mutation found in the samples; blue is for wild type, green for minor allele mutation and red for major allele mutation.
 
       ![Novel Exonic Non-Syn SNPs](images/Novel_SNPs_exonic_nonsyn.jpg)
+<a id="hpc"></a>
+## NeST on HPC
+
+With NeSTv2.1.0, we are trying to implement, a completely HPC compatibile framework with the script ```nest_submitter.py``` which generates and submits a job in a Moab scheduler environment. Currently it is still a work in progress and users need to manipulate the nest_submitter.py to reflect the HPC enivronment specifics. The command listed below will spawn 102 jobs for all the 10105 samples from (The CRyPTIC Consortium and the 100, 2018) paper, using 1 node per job, with 15 threads and 16gb of memory per threads. Since this is still a work in progress, please use make necessary changes to the submitter script or create an issue on the GitHub branch with your HPC framework details and we will get back to you with the changes needed to execute NeST on your HPC framework.
+
+```{sh}
+python3 nest_submitter.py <queue name> <user email> <output path>
+```
